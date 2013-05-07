@@ -18,4 +18,4 @@ b) If some kind of assembly level programming\optimizing, this would destroy the
 
 c) A work around is to limit the maximum bandwidth the controller might support even further, this will increase
 the time available. However, This would affect the portability of the code : Chosen bandwidth should be examined on every
-platform the 
+platform the ...

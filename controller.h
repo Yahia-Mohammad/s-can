@@ -16,10 +16,13 @@
 #define TRASNMIT_BUFFER_SIZE    8
 #define RECEIVE_BUFFER_SIZE     8
 
-/* List of Controller States */
+/* List of Controller Modes of Operation */
 
-#define CS_RECEIVING            0
-#define CS_TRANSMITTING         1
+#define CM_RECEIVE          0
+#define CM_TRANSMIT         1
+#define CM_ERROR            2
+#define CM_OVERLOAD         3
+#define CM_OFFLINE          4
 
 #define FILTERS_NUM             1
 #define MAX_FILTERS_NUM         16
@@ -30,7 +33,7 @@
 (a)<<=1; \
 (a)+=(b);
 
-#if 1
+#if 0
 #define CHECK_STUFFING()\
 if(stuffingRegister == ZEROS)       {\
         if(nxtBit == DOMINANT)\
@@ -59,8 +62,21 @@ if(stuffingRegister == ZEROS)       {\
 extern uint32_t nodeFilters [FILTERS_NUM];      /* Filters */
 extern uint8_t incomingBuffer[INCOMING_BUFFER_SIZE];    /* Receiving Filter*/
 extern uint8_t dataLength; /* Expected size of incoming data in bytes */
-extern uint8_t RTR; /* Remote Transmission Request */
+extern uint8_t RTR; /* Flag : Remote Transmission Request */
 extern uint8_t matchedFilterIndex; /* The index of the nodeFilters entry that mantches the incoming identifier */
+
+/* intializeState : Used to indicate whether a function internal variables needs to be initialized or not. 
+ * In our implementation, functions use static variables to keep track ot their progress for every bit. However, There's a state
+ * transition, the next state needs to initialize its static variables, and here is where we set this flag.  */
+extern uint8_t initializeState; /* Flag : used to mark the first run of a state function. */ 
+
+extern uint8_t generateACK;     /* Flag : used to generate ACK bit the very next bit. */
+extern uint8_t matchCRC;       /* Flag : used to complete the computation of CRC sequence, and compare it.*/
+extern uint8_t delimiterCRC;    /* Flag : used to check for recessive bit in nxtBit, otherwise : Error */
+extern uint8_t controllerMode;  /* Controller mode of operation : (Receive, Transmit, Error, Offline). */
+#if 0
+extern uint8_t bitCounter;      /* Used for bit counting inside state functions. */
+#endif
 
 extern void (*stateFunction[NUM_STATES])();
 extern void (*currentStateFunction)();

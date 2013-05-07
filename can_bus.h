@@ -18,7 +18,7 @@
 
 #define BS_IDLE                 0
 #define BS_SOF                  1
-#define BS_ARBITRATION          2
+#define BS_ARBITRATION_CONTROL  2
 #define BS_CONTROL              3
 #define BS_DATA                 4
 #define BS_CRC                  5

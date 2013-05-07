@@ -35,11 +35,12 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
-	${OBJECTDIR}/error.o \
-	${OBJECTDIR}/uc.o \
 	${OBJECTDIR}/controller.o \
+	${OBJECTDIR}/crc.o \
+	${OBJECTDIR}/error.o \
 	${OBJECTDIR}/main.o \
-	${OBJECTDIR}/sync.o
+	${OBJECTDIR}/sync.o \
+	${OBJECTDIR}/uc.o
 
 
 # C Compiler Flags
@@ -64,22 +65,22 @@ LDLIBSOPTIONS=
 
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/s-can: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
-	${LINK.c} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/s-can ${OBJECTFILES} ${LDLIBSOPTIONS} 
-
-${OBJECTDIR}/error.o: error.c 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.c) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/error.o error.c
-
-${OBJECTDIR}/uc.o: uc.c 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.c) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/uc.o uc.c
+	${LINK.c} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/s-can ${OBJECTFILES} ${LDLIBSOPTIONS}
 
 ${OBJECTDIR}/controller.o: controller.c 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.c) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/controller.o controller.c
+
+${OBJECTDIR}/crc.o: crc.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.c) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/crc.o crc.c
+
+${OBJECTDIR}/error.o: error.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.c) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/error.o error.c
 
 ${OBJECTDIR}/main.o: main.c 
 	${MKDIR} -p ${OBJECTDIR}
@@ -90,6 +91,11 @@ ${OBJECTDIR}/sync.o: sync.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.c) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/sync.o sync.c
+
+${OBJECTDIR}/uc.o: uc.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.c) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/uc.o uc.c
 
 # Subprojects
 .build-subprojects:

@@ -19,34 +19,48 @@
 #define	SYNC_H
 
 #include <sys/types.h>
-/*#include <inttypes.h>*/
-/*#include <sys/types.h>*/
 #include <stdint.h>
 
-#define SYNC_SEG        0
-#define PROP_SEG        1
-#define PHS1_SEG        2
-#define PHS2_SEG        3
+#if 0
+#include <inttypes.h>
+#include <sys/types.h>
+#endif
+
+/* NOTE : Here, we merged the SYNC_SEG with PROP_SEG into one segment, this should work ok as both 
+ * segments are of constant durations.we can simply check for SYNC_SEG by examining the timer.
+ * This should work for most hardware configurations, unless reading the timer needs special of cost relatively high
+ * CPU cycles, in this case we can separate these states back. */
+
+/*#define SYNC_SEG        0*/
+#define SYNC_PROP_SEG        0
+#define PHS1_SEG        1
+#define PHS2_SEG        2
 
 /* Length in (Time Quantum) units. Total length should be between 8 - 25 Time Quanta */
-#define SYNC_LN         1
-#define PROP_LN         1
+
+/*#define SYNC_LN         1*/
+#define SYNC_PROP_LN         2
 #define PHS1_LN         4
 #define PHS2_LN         4
 
 /* Length of (Time Quantum) in clock cycles */
 #define TIME_QUANTUM    10
-
+#if 0
 /* Used to match codes that require stuffing : 0b11111 (five ones) or 0b00000 (five zeros) */
 #define ONES ((uint8_t)0b00011111)
 #define ZEROS ((uint8_t)0b00000000)
-/* Initial Code : helps detects matching without confusing with initial condition */
+/* Initial Code : helps detects stuffing errors (like all zeros) without confusing with initial condition */
 #define INITIAL_CODE ((uint8_t)0b00001000)
+#endif
 
-extern uint8_t segmentLenghts[4];
-extern uint8_t nxtBit;                    /* Used to store next bit received from the bus */
-extern uint8_t stuffingRegister;          /* Used to store bits to check for the code stuffing requirements */
-extern uint8_t processedLastBit;          /* A flag used to indicate wether a state function needs to be called.*/
+extern uint8_t segmentLenghts[3];
+extern uint8_t nxtBit;                  /* Used to store next bit received from the bus */
+extern uint8_t lstBit;                  /* Used for stuffing check */
+extern uint8_t bitRepetitionCount;      /* Used to count the number of repetition of last bit */
+#if 0
+extern uint8_t stuffingRegister;        /* Used to store bits to check for the code stuffing requirements */
+#endif /* Will be removed permenantly */
+extern uint8_t processedLastBit;        /* A flag used to indicate wether a state function needs to be called.*/
 
 void interruptBitTiming();
 void interruptOnChange();

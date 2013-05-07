@@ -8,12 +8,15 @@
 #ifndef UC_H
 #define	UC_H
 
+#include <stdint.h>
 
 void initializeUC();
 
-void doSample();
+void getSample();
 
-void updateTimer();
+void putBit(uint8_t bit);
+
+void updateTimer();     /* Are used to set the timer capture time. */
 
 
 #endif	/* UC_H */

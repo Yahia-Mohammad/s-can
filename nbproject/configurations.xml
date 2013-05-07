@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configurationDescriptor version="84">
+<configurationDescriptor version="88">
   <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
       <itemPath>can_bus.h</itemPath>
       <itemPath>controller.h</itemPath>
+      <itemPath>crc.h</itemPath>
       <itemPath>error.h</itemPath>
       <itemPath>sync.h</itemPath>
       <itemPath>uc.h</itemPath>
@@ -14,11 +15,13 @@
                    displayName="Resource Files"
                    projectFiles="true">
       <itemPath>General Notes.txt</itemPath>
+      <itemPath>Global and Static Variables.txt</itemPath>
     </logicalFolder>
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
       <itemPath>controller.c</itemPath>
+      <itemPath>crc.c</itemPath>
       <itemPath>error.c</itemPath>
       <itemPath>main.c</itemPath>
       <itemPath>sync.c</itemPath>
@@ -42,14 +45,46 @@
       <toolsSet>
         <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
         <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
       <compileType>
       </compileType>
+      <item path="General Notes.txt" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Global and Static Variables.txt" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="can_bus.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="controller.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="controller.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="crc.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="crc.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="error.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="error.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="main.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="sync.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="sync.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="uc.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="uc.h" ex="false" tool="3" flavor2="0">
+      </item>
     </conf>
     <conf name="Release" type="1">
       <toolsSet>
         <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
         <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
       <compileType>
         <cTool>
@@ -65,6 +100,34 @@
           <developmentMode>5</developmentMode>
         </asmTool>
       </compileType>
+      <item path="General Notes.txt" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Global and Static Variables.txt" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="can_bus.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="controller.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="controller.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="crc.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="crc.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="error.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="error.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="main.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="sync.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="sync.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="uc.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="uc.h" ex="false" tool="3" flavor2="0">
+      </item>
     </conf>
   </confs>
 </configurationDescriptor>

@@ -2,6 +2,7 @@
 #include "can_bus.h"
 #include "sync.h"
 #include "error.h"
+#include "crc.h"
 
 void (*stateFunction[NUM_STATES])() = {stateIdle, stateSOF,
 stateArbitration, stateControl, stateData, stateCRC,
@@ -16,13 +17,20 @@ uint32_t nodeFilters [FILTERS_NUM] = {0};
 uint8_t dataLength = 0;
 uint8_t RTR = 0;
 uint8_t matchedFilterIndex = MAX_FILTERS_NUM;
+uint8_t initializeState = 1; 
+uint8_t generateACK = 0;
+uint8_t matchCRC = 0;
+uint8_t delimiterCRC = 0;
+
+uint8_t controllerMode = CM_RECEIVE;
+
 
 /* IMPORTANT : Should be initialized to  stateFunction[BS_IDLE]*/
 void (*currentStateFunction)() = 0;
 
 void stateIdle()        {
     if(nxtBit == DOMINANT)
-      currentStateFunction = stateFunction[BS_ARBITRATION];  
+      currentStateFunction = stateFunction[BS_ARBITRATION_CONTROL];  
 }
 
 void stateSOF() {
@@ -64,7 +72,9 @@ void stateArbitration() {
     }
 #endif
     
+#if 0  
     CHECK_STUFFING();
+#endif
     
     /* we should check for other errors as well */
     
@@ -149,8 +159,10 @@ void stateData()        {
      */
     static uint8_t bitCounter = 10;  /* Non-Zero initial condition */
     static uint8_t byteCounter = 10; /* Non-Zero initial condition */
-    
+
+#if 0
     CHECK_STUFFING();
+#endif
     
     if(bitCounter == 10)        { 
         /* Checking for Initial Condition.
@@ -175,25 +187,80 @@ void stateData()        {
     }
     
 }
-
+/* All functions above need to be revised/rewritten for : initialization flag, crc update, set next state, global functions ...*/
 void stateCRC() {
+    static uint8_t bitCounter = 0;
+    if(initializeState) {
+        bitCounter = 0;
+        receivedCRC = 0;
+    }
     
+    if(bitCounter <= 15) {
+        
+        if(bitCounter < 15) {
+            UPDATE_REGISTER(receivedCRC, nxtBit);
+        }
+        else 
+            delimiterCRC = 1;
+        
+        bitCounter++;
+    }
+    
+    if(bitCounter == 16)    {
+        /* transition to next state*/
+    }
 }
 
 void stateACK() {
-    
+    /* May not need it ...*/
 }
 
 void stateEOF() {
-    
+    /* This state code might be moved to interruptBitTiming() in sync.c to get the right response time */
+    static uint8_t bitCounter = 0;
+    if(initializeState)
+        bitCounter = 0;
+    if(nxtBit != RECESSIVE) {
+        SWITCH_ERROR_MODE(0, 6);
+    }
+    else
+        bitCounter++;
+    if(bitCounter == 7) {
+        /* Set next state. */
+    }
 }
 
 void stateIntermission()        {
-    
+    /* to be moved to interruptBitTiming() in sync.c */
+    static uint8_t bitCounter = 0;
+    if(initializeState)
+        bitCounter = 0;
+    switch(bitCounter)  {
+        case 0:
+            if(nxtBit == DOMINANT)  {
+                /* OVERLOAD FLAG, START TRANSMITTING OVERLOAD FRAME */
+            }
+            break;
+        case 1:
+            if(nxtBit == DOMINANT)  {
+                /* Error */
+            }
+            break;
+        case 2:
+            if(nxtBit == DOMINANT)  {
+                /* start of new frame */
+            }
+            else    {
+                /* state transition */
+            }
+            break;
+        default:
+            break;
+    }
 }
 
 void stateSuspend()     {
-    
+    /* Only in transmission controller mode, and error state is passive */
 }
 
 void stateOverload()    {
