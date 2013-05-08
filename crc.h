@@ -17,6 +17,7 @@ extern uint16_t localCRC, receivedCRC;
 if(((a)&CRC_MSB)^((b) << 14)) {\
     (a)<<=1;\
     (a)^=(uint16_t)0x4599;\
+    }\
 else\
     (a)<<=1;
 

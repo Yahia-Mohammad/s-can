@@ -42,29 +42,8 @@ void interruptBitTiming()       {
         if(controllerMode == CM_RECEIVE)        {
             /* Note : This code is written and optimized for ARM7 CPUs, that perform equally well for both 32 bit and 8 bit. So,
              * we don't have any problems checking 32-bit address pointers, otherwise, we could have used 8-bit indeces. */
- #if 0    
-            if((currentStateFunction == stateFunction[BS_ARBITRATION_CONTROL]) || (currentStateFunction == stateFunction[BS_DATA]) || (currentStateFunction == stateFunction[BS_CRC]))
-            {               
-                if(stuffingRegister == ZEROS)       {
-                    stuffingRegister = INITIAL_CODE;
-                    if(nxtBit == DOMINANT)
-                            codingError(); /* VERY IMPORTANT : WE ALSO NEED TO INITIALIZE VARIABLES FOR NEXT RUN, INCLUDING stuffingRegister */
-
-                    return; /* We want to skip this bit anyway, is 'return' the best solution ? */
-                }
-
-                if(stuffingRegister == ONES)        {
-                    stuffingRegister = INITIAL_CODE;
-                    if(nxtBit == RECESSIVE)
-                            codingError(); 
-
-                    return; /* We want to skip this bit anyway, is 'return' the best solution ? */
-                }
-                /* Here, we don't have any stuffing issues. So, update stuffingRegister */
-                UPDATE_REGISTER(stuffingRegister, nxtBit); 
-            }
-    #endif
-
+ 
+            /* VERY IMPORTANT : DELIMITER CRC SHOULD BE EXCLUDED FROM BIT STUFFING */
             if((currentStateFunction == stateFunction[BS_ARBITRATION_CONTROL]) || (currentStateFunction == stateFunction[BS_DATA]) || (currentStateFunction == stateFunction[BS_CRC]))
             {
                 if(bitRepetitionCount != 0)
@@ -110,10 +89,16 @@ void interruptBitTiming()       {
                     /* check for recessive bit in nxtBit, otherwise : Error */
                 if(nxtBit != RECESSIVE)     {
                     SWITCH_ERROR_MODE(6,0); /* Value 0 will be replaced */
-                    /* Error */
                 }
                 delimiterCRC = 0;
+                generateACK = 1;
                 return;
+            }
+            if(delimiterACK)    {
+                if(nxtBit != RECESSIVE) {
+                    SWITCH_ERROR_MODE(6,0); /* Value 0 will be replaced */
+                }
+                delimiterACK = 0;
             }
         }
     }

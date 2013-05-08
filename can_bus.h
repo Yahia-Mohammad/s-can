@@ -22,6 +22,9 @@
 #define BS_CONTROL              3
 #define BS_DATA                 4
 #define BS_CRC                  5
+/* we need to re-number the states and create a function for CRC delimiter */
+#define BS_CRC_DELIMITER        5
+
 #define BS_ACK                  6
 #define BS_EOF                  7
 #define BS_INTERMISSION         8

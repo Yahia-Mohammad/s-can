@@ -33,32 +33,6 @@
 (a)<<=1; \
 (a)+=(b);
 
-#if 0
-#define CHECK_STUFFING()\
-if(stuffingRegister == ZEROS)       {\
-        if(nxtBit == DOMINANT)\
-            codingError();  /* VERY IMPORTANT : WE ALSO NEED TO INITIALIZE VARIABLES FOR NEXT RUN, INCLUDING stuffingRegister */ \
-        else    {\
-            stuffingRegister = INITIAL_CODE; \
-            UPDATE_REGISTER(stuffingRegister, nxtBit); \
-        }\
-        /* VERY IMPORTANT : BEFORE RETURNING, WE NEED TO SET NEXT STATE */ \
-        /* OR ADD IT IN THE END OF ERROR FUNCTIONS */ \
-        return;\
-    }\
-    \
-    if(stuffingRegister == ONES)        {\
-        if(nxtBit == RECESSIVE)\
-            codingError(); /* VERY IMPORTANT : WE ALSO NEED TO INITIALIZR VARIABLES FOR NEXT RUN */ \
-        else    {\
-            stuffingRegister = INITIAL_CODE;\
-            UPDATE_REGISTER(stuffingRegister, nxtBit);\
-        }\
-        /* VERY IMPORTANT : AS ABOVE */ \
-        return;\
-    }
-#endif
-
 extern uint32_t nodeFilters [FILTERS_NUM];      /* Filters */
 extern uint8_t incomingBuffer[INCOMING_BUFFER_SIZE];    /* Receiving Filter*/
 extern uint8_t dataLength; /* Expected size of incoming data in bytes */
@@ -71,8 +45,9 @@ extern uint8_t matchedFilterIndex; /* The index of the nodeFilters entry that ma
 extern uint8_t initializeState; /* Flag : used to mark the first run of a state function. */ 
 
 extern uint8_t generateACK;     /* Flag : used to generate ACK bit the very next bit. */
-extern uint8_t matchCRC;       /* Flag : used to complete the computation of CRC sequence, and compare it.*/
-extern uint8_t delimiterCRC;    /* Flag : used to check for recessive bit in nxtBit, otherwise : Error */
+extern uint8_t matchCRC;        /* Flag : used to complete the computation of CRC sequence, and compare it.*/
+extern uint8_t delimiterCRC;    /* Flag : used to check for recessive bit in CRC delimiter field, otherwise : Error */
+extern uint8_t delimiterACK;    /* Flag : used to check for recessive bit in ACK delimiter field, otherwise : Error */
 extern uint8_t controllerMode;  /* Controller mode of operation : (Receive, Transmit, Error, Offline). */
 #if 0
 extern uint8_t bitCounter;      /* Used for bit counting inside state functions. */
@@ -82,12 +57,13 @@ extern void (*stateFunction[NUM_STATES])();
 extern void (*currentStateFunction)();
 
 void stateIdle();
-void stateSOF();
+void stateSOF();            /* Redundant, should be removed*/
 void stateArbitration();
-void stateControl();
+void stateControl();        /* Redundant, should be removed*/
 void stateData();
-void stateCRC();
-void stateACK();
+void stateCRC();   
+void stateCRC_Delimiter();
+void stateACK();            
 void stateEOF();
 void stateIntermission();
 void stateSuspend();
