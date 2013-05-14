@@ -38,9 +38,9 @@ OBJECTFILES= \
 	${OBJECTDIR}/controller.o \
 	${OBJECTDIR}/crc.o \
 	${OBJECTDIR}/error.o \
+	${OBJECTDIR}/hal.o \
 	${OBJECTDIR}/main.o \
-	${OBJECTDIR}/sync.o \
-	${OBJECTDIR}/uc.o
+	${OBJECTDIR}/sync.o
 
 
 # C Compiler Flags
@@ -82,6 +82,11 @@ ${OBJECTDIR}/error.o: error.c
 	${RM} $@.d
 	$(COMPILE.c) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/error.o error.c
 
+${OBJECTDIR}/hal.o: hal.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.c) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/hal.o hal.c
+
 ${OBJECTDIR}/main.o: main.c 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
@@ -91,11 +96,6 @@ ${OBJECTDIR}/sync.o: sync.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.c) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/sync.o sync.c
-
-${OBJECTDIR}/uc.o: uc.c 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.c) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/uc.o uc.c
 
 # Subprojects
 .build-subprojects:

@@ -1,5 +1,5 @@
 #include "sync.h"
-#include "uc.h"
+#include "hal.h"
 #include "can_bus.h"
 #include "controller.h"
 #include "crc.h"
@@ -21,6 +21,7 @@ void interruptBitTiming()       {
         bitState = SYNC_PROP_SEG;
     else 
         bitState++;
+    
     updateTimer();
     
     /*********************************/
@@ -59,26 +60,26 @@ void interruptBitTiming()       {
                             bitRepetitionCount = 1;
 
                     if(bitRepetitionCount == 6)
-                        SWITCH_ERROR_MODE(6,0); /*Value 0 should be replaced*/
+                        SWITCH_ERROR_MODE(CM_RECEIVE); /*Value 0 should be replaced*/
                         return; /* Error Detected : will be expanded later ...*/
                 }
 
                 lstBit = nxtBit;
-
+                bitRepetitionCount++; /* double check this */
     #if 0    /* We may need to put it here */
                 if(currentStateFunction != stateFunction[BS_CRC])   {
                     /* update the CRC sequence */
                 }
     #endif
 
-            }
+            } /*** End of stuffing update/checking ***/
 
             if(matchCRC)       {/* This is WRONG: CRC mismatch doesn't signal error after crc delimiter, rather, after the ACK delimiter.*/
                 UPDATE_REGISTER(receivedCRC, nxtBit);
                 localCRC &= ~(1 << 15);
                 if(localCRC != receivedCRC) {
                     /* Error*/
-                    SWITCH_ERROR_MODE(6,0);/* Value 0 will be replaced */
+                    SWITCH_ERROR_MODE(CM_RECEIVE);/* Value 0 will be replaced */
                 }
                 matchCRC = 0;
                 delimiterCRC = 1;
@@ -88,7 +89,7 @@ void interruptBitTiming()       {
             if(delimiterCRC)    {/* The ACK flag should be set here*/
                     /* check for recessive bit in nxtBit, otherwise : Error */
                 if(nxtBit != RECESSIVE)     {
-                    SWITCH_ERROR_MODE(6,0); /* Value 0 will be replaced */
+                    SWITCH_ERROR_MODE(CM_RECEIVE); /* Value 0 will be replaced */
                 }
                 delimiterCRC = 0;
                 generateACK = 1;
@@ -96,27 +97,56 @@ void interruptBitTiming()       {
             }
             if(delimiterACK)    {
                 if(nxtBit != RECESSIVE) {
-                    SWITCH_ERROR_MODE(6,0); /* Value 0 will be replaced */
+                    SWITCH_ERROR_MODE(CM_RECEIVE); /* Value 0 will be replaced */
                 }
                 delimiterACK = 0;
             }
-        }
-    }
+        } /* controllerMode == CM_RECEIVE */
+        
+        /*************************/
+        /*****  Error Mode   *****/
+        /*************************/
+        
+        if(controllerMode == CM_ERROR)  {
+            if(globalError.bitCounter == 0) {
+                if(globalError.busSubState == BS_SUB_ERROR) {
+                    if(nxtBit == RECESSIVE) {
+                        globalError.busSubState = BS_SUB_ERROR_DELIMITER;
+                        globalError.bitCounter = 8;
+                    }
+                }
+                else    {
+                    /* globalError.busSubState == BS_SUB_ERROR_DELIMITER */
+                    
+                    /*||||| update error counter, and error state **/
+                    /* The following needs to be expanded to implement other error checks */
+                    if(globalError.lastControllerState == CM_RECEIVE)   
+                        globalError.receiveCounter++;
+                    else
+                        globalError.transmitCounter++;
+                    
+                    /* Transition to next state */
+                    controllerMode = CM_RECEIVE;
+                    currentStateFunction = stateFunction[BS_INTERMISSION];
+                    initializeState = 1;
+                }
+            } /* global.Error.bitCounter == 0 */
+        } /* controllerMode == CM_ERROR */
+    } /* bitState == PHS2_SEG */
     
     /******************************/
     /*** Start of SYNC_PROP_SEG ***/
     /******************************/
-    
+       
     if(bitState == SYNC_PROP_SEG)   {
-            
+        
+        uint8_t outputBit = RECESSIVE;
         /*==================*/
         /*== RECEIVE MODE ==*/
         /*==================*/
             
         if(controllerMode == CM_RECEIVE)    {
-            if(generateACK == 0)
-                putBit(RECESSIVE);
-            else    {
+            if(generateACK == 0)    {
                 putBit(DOMINANT);
                 generateACK = 0;
             }
@@ -128,14 +158,15 @@ void interruptBitTiming()       {
         /*================*/
             
         if(controllerMode == CM_ERROR)  {
-            if(errorBitCounter) {
-                putBit(errorBitValue);
-                errorBitCounter--;
+            if(globalError.bitCounter) {
+                outputBit = (globalError.busSubState) ? globalError.errorState : RECESSIVE;
+                globalError.bitCounter--;
             }
-            else
-                putBit(RECESSIVE);
         }
-    }
+        
+        /* update the bus state */
+        putBit(outputBit);
+    } /* bitState == SYNC_PROP_SEG */
 }
 
 void interruptOnChange()        {
@@ -144,4 +175,19 @@ void interruptOnChange()        {
      2)if in PHS1_SEG :=increase PHS1 length.
      3)if in PHS2_SEG :=decrease PHS2 length.
      */
+    
+    switch(bitState)    {
+        case SYNC_PROP_SEG:
+            if(TIMER == 1)  /* in SYNC_SEG */
+                resetTimer();
+            break;
+        case PHS1_SEG:
+            
+            break;
+        case PHS2_SEG:
+            break;
+        default:
+            /* redundant */
+            break;
+    }
 }

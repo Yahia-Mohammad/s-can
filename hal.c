@@ -1,4 +1,4 @@
-#include "uc.h"
+#include "hal.h"
 
 void getSample() {
     /*This when we should read the next bit*/
@@ -19,4 +19,12 @@ void updateTimer()      {
 void intializeUC()      {
     
     return ;
+}
+
+void resetTimer()   {
+    
+}
+
+uint8_t getTimer() {
+    
 }

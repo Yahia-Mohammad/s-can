@@ -26,15 +26,14 @@
  * This should work for most hardware configurations, unless reading the timer needs special of cost relatively high
  * CPU cycles, in this case we can separate these states back. */
 
-/*#define SYNC_SEG        0*/
 #define SYNC_PROP_SEG        0
 #define PHS1_SEG        1
 #define PHS2_SEG        2
 
 /* Length in (Time Quantum) units. Total length should be between 8 - 25 Time Quanta */
 
-/*#define SYNC_LN         1*/
-#define SYNC_PROP_LN         2
+
+#define SYNC_PROP_LN    2
 #define PHS1_LN         4
 #define PHS2_LN         4
 
@@ -46,7 +45,7 @@ extern uint8_t nxtBit;                  /* Used to store next bit received from 
 extern uint8_t lstBit;                  /* Used for stuffing check */
 extern uint8_t bitRepetitionCount;      /* Used to count the number of repetition of last bit */
 
-extern uint8_t processedLastBit;        /* A flag used to indicate weather a state function needs to be called.*/
+extern uint8_t processedLastBit;        /* Flag : used to indicate weather a state function needs to be called.*/
 
 void interruptBitTiming();
 void interruptOnChange();

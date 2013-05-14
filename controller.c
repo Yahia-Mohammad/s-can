@@ -235,7 +235,7 @@ void stateEOF() {
     }
     
     if(nxtBit != RECESSIVE) {
-        SWITCH_ERROR_MODE(0, 6);
+        SWITCH_ERROR_MODE(CM_RECEIVE);
     }
     else
         bitCounter++;

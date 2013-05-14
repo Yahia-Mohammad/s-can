@@ -8,14 +8,15 @@
       <itemPath>controller.h</itemPath>
       <itemPath>crc.h</itemPath>
       <itemPath>error.h</itemPath>
+      <itemPath>hal.h</itemPath>
       <itemPath>sync.h</itemPath>
-      <itemPath>uc.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
                    displayName="Resource Files"
                    projectFiles="true">
       <itemPath>General Notes.txt</itemPath>
       <itemPath>Global and Static Variables.txt</itemPath>
+      <itemPath>TODO.txt</itemPath>
     </logicalFolder>
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
@@ -23,9 +24,9 @@
       <itemPath>controller.c</itemPath>
       <itemPath>crc.c</itemPath>
       <itemPath>error.c</itemPath>
+      <itemPath>hal.c</itemPath>
       <itemPath>main.c</itemPath>
       <itemPath>sync.c</itemPath>
-      <itemPath>uc.c</itemPath>
     </logicalFolder>
     <logicalFolder name="TestFiles"
                    displayName="Test Files"
@@ -54,6 +55,8 @@
       </item>
       <item path="Global and Static Variables.txt" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="TODO.txt" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="can_bus.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="controller.c" ex="false" tool="0" flavor2="0">
@@ -68,15 +71,15 @@
       </item>
       <item path="error.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="hal.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="hal.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="main.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="sync.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="sync.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="uc.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="uc.h" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
     <conf name="Release" type="1">
@@ -104,6 +107,8 @@
       </item>
       <item path="Global and Static Variables.txt" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="TODO.txt" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="can_bus.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="controller.c" ex="false" tool="0" flavor2="0">
@@ -118,15 +123,15 @@
       </item>
       <item path="error.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="hal.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="hal.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="main.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="sync.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="sync.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="uc.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="uc.h" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
   </confs>
