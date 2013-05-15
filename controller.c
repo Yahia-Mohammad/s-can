@@ -4,15 +4,26 @@
 #include "error.h"
 #include "crc.h"
 
+globalController_t globalController = {.dataLength = 0,
+.RTR = 0,
+.matchedFilterIndex = MAX_FILTERS_NUM,
+.initializeState = 1,
+.generateACK = 0,
+.matchCRC = 0, 
+.delimiterCRC = 0,
+.delimiterACK = 0, 
+.controllerMode = CM_RECEIVE};
+
 void (*stateFunction[NUM_STATES])() = {stateIdle, stateSOF,
 stateArbitration, stateControl, stateData, stateCRC,
 stateACK, stateEOF, stateIntermission, stateSuspend,
 stateOverload, stateOverloadDelimiter, stateError, stateErrorDelimiter};
 
-uint8_t nxtBit = RECESSIVE;
 
 uint8_t incomingBuffer[INCOMING_BUFFER_SIZE] = {0};
 uint32_t nodeFilters [FILTERS_NUM] = {0};
+
+#if 0
 uint8_t dataLength = 0;
 uint8_t RTR = 0;
 uint8_t matchedFilterIndex = MAX_FILTERS_NUM;
@@ -23,15 +34,15 @@ uint8_t delimiterCRC = 0;
 uint8_t delimiterACK = 0;
 
 uint8_t controllerMode = CM_RECEIVE;
-
+#endif
 
 /* IMPORTANT : Should be initialized to  stateFunction[BS_IDLE]*/
 void (*currentStateFunction)() = 0;
 
 void stateIdle()        {
-    processedLastBit = 1;
-    if(nxtBit == DOMINANT)  {
-        initializeState = 1;
+    globalSync.processedLastBit = 1;
+    if(globalSync.nxtBit == DOMINANT)  {
+        globalController.initializeState = 1;
         currentStateFunction = stateFunction[BS_ARBITRATION_CONTROL];  
     }
 }
@@ -46,22 +57,22 @@ void stateArbitration() {
     static uint8_t identifierCounter = 11;
     static uint32_t identifier = 0;    
     static uint8_t endSection = 0;
-    processedLastBit = 1;
+    globalSync.processedLastBit = 1;
     
-    if(initializeState) {
+    if(globalController.initializeState) {
         extended = 2;
         bitCounter = 0;
         identifierCounter = 0;
         identifier = 0;
         endSection = 0;
         localCRC = 0;
-        initializeState = 0;
+        globalController.initializeState = 0;
         
         /* Counting for SOF */
         UPDATE_CRC(localCRC, DOMINANT); 
         
-        lstBit = DOMINANT;
-        bitRepetitionCount = 1;
+        globalSync.lstBit = DOMINANT;
+        globalSync.bitRepetitionCount = 1;
     }
     
     uint8_t i; /* Used as an iterator, a precaution in case the compiler used only support ISO C */
@@ -71,19 +82,19 @@ void stateArbitration() {
     /* Increase the bit counter */
     bitCounter++;
     
-    UPDATE_CRC(localCRC, nxtBit);
+    UPDATE_CRC(localCRC, globalSync.nxtBit);
     
     if(identifierCounter != 0)  {  
-        UPDATE_REGISTER(identifier, nxtBit);
+        UPDATE_REGISTER(identifier, globalSync.nxtBit);
         identifierCounter--;
     }
     
     if(bitCounter == 12)
-        RTR = nxtBit;
+        globalController.RTR = globalSync.nxtBit;
     
     if(bitCounter == 13)        {
         
-        extended = nxtBit;
+        extended = globalSync.nxtBit;
         if(extended == RECESSIVE) 
             identifierCounter = 18;
     }
@@ -91,10 +102,10 @@ void stateArbitration() {
     /* Extended Frame Format */
     if(extended == RECESSIVE)   {
         if(bitCounter == 42)    
-            RTR = nxtBit;
+            globalController.RTR = globalSync.nxtBit;
         
         if((bitCounter >= 45) && (bitCounter <= 48))
-            UPDATE_REGISTER(dataLength, !nxtBit);
+            UPDATE_REGISTER(globalController.dataLength, !globalSync.nxtBit);
         
         if(bitCounter == 48)
             endSection = 1;
@@ -103,28 +114,28 @@ void stateArbitration() {
     /* Standard Frame Format */
     if(extended == DOMINANT)    {
         if((bitCounter >= 15) && (bitCounter <= 18 ))
-            UPDATE_REGISTER(dataLength, !nxtBit);
+            UPDATE_REGISTER(globalController.dataLength, !globalSync.nxtBit);
         
         if(bitCounter == 18)
             endSection = 1;
     }
     
     if(endSection)      {    
-        if(RTR == RECESSIVE)
-            dataLength = 0; /* The CAN specifications state that in RTR, data length should be 0 regardless of the DLC */
+        if(globalController.RTR == RECESSIVE)
+            globalController.dataLength = 0; /* The CAN specifications state that in RTR, data length should be 0 regardless of the DLC */
         /* Compare with stored filters, then set a flag if there is a match */  
         /* Linear search algorithm is good enough (or even best choice) for the small array of filters we have. */   
         for(i = 0; i < FILTERS_NUM; i++)
             if(nodeFilters[i] == identifier)    {
-                matchedFilterIndex = i; break;
+                globalController.matchedFilterIndex = i; break;
             }
         
-        if(RTR)
+        if(globalController.RTR)
             currentStateFunction = stateFunction[BS_CRC];
         else
             currentStateFunction = stateFunction[BS_DATA];
         
-        initializeState = 1;
+        globalController.initializeState = 1;
         
         /* All the clean up goes here, all static and related global variables, then set the next state 
          * WE DO NOT CLEAR stuffingRegister here 
@@ -152,11 +163,11 @@ void stateData()        {
     static uint8_t bitCounter; 
     static uint8_t byteCounter;
 
-    processedLastBit = 1;
-    if(initializeState) {
+    globalSync.processedLastBit = 1;
+    if(globalController.initializeState) {
         bitCounter = 8;
-        byteCounter = dataLength - 1;
-        initializeState = 0;
+        byteCounter = globalController.dataLength - 1;
+        globalController.initializeState = 0;
     }
     
     if(bitCounter == 0) {
@@ -166,35 +177,35 @@ void stateData()        {
     else
         bitCounter--;
     
-    UPDATE_REGISTER(incomingBuffer[byteCounter], nxtBit);
+    UPDATE_REGISTER(incomingBuffer[byteCounter], globalSync.nxtBit);
     
-    UPDATE_CRC(localCRC, nxtBit);
+    UPDATE_CRC(localCRC, globalSync.nxtBit);
       
     if((bitCounter == 0) && (byteCounter == 0)) {
         /* do the clean up and prepare for the next state 
          * clear corresponding global and static variables, clear buffers and set next state */
         currentStateFunction = stateFunction[BS_CRC];
-        initializeState = 1;
+        globalController.initializeState = 1;
     }   
 }
 
 
 void stateCRC() {
     static uint8_t bitCounter = 0;
-    processedLastBit = 1;
-    if(initializeState) {
+    globalSync.processedLastBit = 1;
+    if(globalController.initializeState) {
         bitCounter = 0;
         receivedCRC = 0;
-        initializeState = 0;
+        globalController.initializeState = 0;
     }
     
     if(bitCounter <= 15) {
         
         if(bitCounter < 15) {
-            UPDATE_REGISTER(receivedCRC, nxtBit);
+            UPDATE_REGISTER(receivedCRC, globalSync.nxtBit);
         }
         else    {
-            delimiterCRC = 1;
+            globalController.delimiterCRC = 1;
             currentStateFunction = stateFunction[BS_CRC_DELIMITER];
         }
         bitCounter++;
@@ -212,29 +223,29 @@ void stateCRC_Delimiter()   {
     /* When this function is called : the controller is on the CRC delimiter, and preparing for ACK bit generation
      * on the beginning of the next bit. When it reaches the sample point, it'll then prepare for the ACK delimiter bit 
      * generation, and the controller will be in the ACK state.*/
-    processedLastBit = 1;
+    globalSync.processedLastBit = 1;
     currentStateFunction = stateFunction[BS_ACK];
-    delimiterACK = 1; 
+    globalController.delimiterACK = 1; 
 }
 
 void stateACK() {
-    /* When this function is called : the controller is on the ACK state, and running before the next sample point of ACK delimiter
+    /* When this function is called : the controller is in the ACK state, and running before the next sample point of ACK delimiter
      * and there where the controller checks for CRC matching, and signal the Error frame if needed. */
-    processedLastBit = 1;
-    matchCRC = 1;
+    globalSync.processedLastBit = 1;
+    globalController.matchCRC = 1;
     /* change state to EOF ...*/
 }
 
 void stateEOF() {
     /* This state code might be moved to interruptBitTiming() in sync.c to get the right response time */
     static uint8_t bitCounter = 0;
-    processedLastBit = 1;
-    if(initializeState) {
+    globalSync.processedLastBit = 1;
+    if(globalController.initializeState) {
         bitCounter = 0;
-        initializeState = 0;
+        globalController.initializeState = 0;
     }
     
-    if(nxtBit != RECESSIVE) {
+    if(globalSync.nxtBit != RECESSIVE) {
         SWITCH_ERROR_MODE(CM_RECEIVE);
     }
     else
@@ -248,31 +259,31 @@ void stateEOF() {
 void stateIntermission()        {
     /* to be moved to interruptBitTiming() in sync.c */
     static uint8_t bitCounter = 0;
-    processedLastBit = 1;
-    if(initializeState) {
+    globalSync.processedLastBit = 1;
+    if(globalController.initializeState) {
         bitCounter = 0;
-        initializeState = 0;
+        globalController.initializeState = 0;
     }
     switch(bitCounter)  {
         case 0:
-            if(nxtBit == DOMINANT)  {
+            if(globalSync.nxtBit == DOMINANT)  {
                 /* OVERLOAD FLAG, START TRANSMITTING OVERLOAD FRAME */
             }
             break;
         case 1:
-            if(nxtBit == DOMINANT)  {
+            if(globalSync.nxtBit == DOMINANT)  {
                 /* Error */
             }
             break;
         case 2:
-            if(nxtBit == DOMINANT)  {
+            if(globalSync.nxtBit == DOMINANT)  {
                 /* start of new frame */
             }
             else    {
                 /* state transition to either suspend or idle. Here, we only implement the transition to idle,
                  * as 'suspend' is a valid transition only when we're transmitting. */
                 currentStateFunction = stateFunction[BS_IDLE];
-                initializeState = 1;
+                globalController.initializeState = 1;
             }
             break;
         default:
@@ -298,4 +309,8 @@ void stateError()       {
 
 void stateErrorDelimiter()      {
     
+}
+
+void Initialize()   {
+    globalSync.relativeJumpWidth = globalSync.jumpWidth - SYNC_PROP_LN;
 }

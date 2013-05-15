@@ -17,9 +17,9 @@ void getSample();
 
 void putBit(uint8_t bit);
 
-void updateTimer();     /* Are used to set the timer capture time. */
+void updateCapture(int8_t shift);     /* Are used to set the timer capture time. */
 
-uint8_t getTimer();        /* Could use volatile variable or a macro instead */
+uint8_t getTimer();        /* Could use volatile variable or a macro */
 
 void resetTimer();      /* zero the timer, and start over. */
 

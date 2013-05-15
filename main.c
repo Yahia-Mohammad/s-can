@@ -15,7 +15,7 @@
 int main(int argc, char** argv) {
 
     while(1)    {
-        switch(controllerMode)  {
+        switch(globalController.controllerMode)  {
             case CM_RECEIVE:
                 (*currentStateFunction)();
                 break;

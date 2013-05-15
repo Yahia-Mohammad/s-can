@@ -31,7 +31,7 @@ extern globalError_t globalError;
 #define SWITCH_ERROR_MODE(a)\
 globalError.lastControllerState = (a);\
 globalError.bitCounter = 6;\
-controllerMode = CM_ERROR;
+globalController.controllerMode = CM_ERROR;
 
 #define DECREASE_RECEIVE_ERROR_COUNTER      globalError.receiveCounter--
 #define DECREASE_TRANSMIT_ERROR_COUNTER     globalError.transmitCounter--

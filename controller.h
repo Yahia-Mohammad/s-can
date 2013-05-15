@@ -33,11 +33,31 @@
 (a)<<=1; \
 (a)+=(b);
 
+typedef struct  {  
+    uint8_t dataLength; /* Expected size of incoming data in bytes */
+    uint8_t RTR; /* Flag : Remote Transmission Request */
+    uint8_t matchedFilterIndex; /* The index of the nodeFilters entry that matches the incoming identifier */
+
+/* intializeState : Used to indicate whether a function internal variables needs to be initialized or not. 
+ * In our implementation, functions use static variables to keep track of their progress for every bit. However, There's a state
+ * transition, the next state needs to initialize its static variables, and here is where we set this flag.  */
+    uint8_t initializeState; /* Flag : used to mark the first run of a state function. */ 
+
+    uint8_t generateACK;     /* Flag : used to generate ACK bit the very next bit. */
+    uint8_t matchCRC;        /* Flag : used to complete the computation of CRC sequence, and compare it.*/
+    uint8_t delimiterCRC;    /* Flag : used to check for recessive bit in CRC delimiter field, otherwise : Error */
+    uint8_t delimiterACK;    /* Flag : used to check for recessive bit in ACK delimiter field, otherwise : Error */
+    uint8_t controllerMode;  /* Controller mode of operation : (Receive, Transmit, Error, Offline,...). */
+} globalController_t;
+
+extern globalController_t globalController;
+
 extern uint32_t nodeFilters [FILTERS_NUM];      /* Filters */
 extern uint8_t incomingBuffer[INCOMING_BUFFER_SIZE];    /* Receiving Filter*/
+#if 0
 extern uint8_t dataLength; /* Expected size of incoming data in bytes */
 extern uint8_t RTR; /* Flag : Remote Transmission Request */
-extern uint8_t matchedFilterIndex; /* The index of the nodeFilters entry that mantches the incoming identifier */
+extern uint8_t matchedFilterIndex; /* The index of the nodeFilters entry that matches the incoming identifier */
 
 /* intializeState : Used to indicate whether a function internal variables needs to be initialized or not. 
  * In our implementation, functions use static variables to keep track ot their progress for every bit. However, There's a state
@@ -49,6 +69,8 @@ extern uint8_t matchCRC;        /* Flag : used to complete the computation of CR
 extern uint8_t delimiterCRC;    /* Flag : used to check for recessive bit in CRC delimiter field, otherwise : Error */
 extern uint8_t delimiterACK;    /* Flag : used to check for recessive bit in ACK delimiter field, otherwise : Error */
 extern uint8_t controllerMode;  /* Controller mode of operation : (Receive, Transmit, Error, Offline). */
+#endif
+
 #if 0
 extern uint8_t bitCounter;      /* Used for bit counting inside state functions. */
 #endif
@@ -72,6 +94,7 @@ void stateOverloadDelimiter();
 void stateError();
 void stateErrorDelimiter();
 
+void Initialize();
 
 #endif	/* CONTROLLER_H */
 

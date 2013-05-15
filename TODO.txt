@@ -1,7 +1,7 @@
 TODO list :
 
-* Implement the transmitting functionality
+* Implement the transmission functionality.
 * Implementing the SPI interface.
 * Complete the error check for the different cases.
 * Implement overload frame.
-* Implement the response for wake-up frame
+* Implement the response for wake-up frame.
