@@ -7,7 +7,7 @@
 
 /* How does the clock work in both receiving and transmitting modes ?
  * 
- * Receving : 
+ * Receiving : 
  * The Timer and Capture/Match unit are utilized to get the bit's segments right.
  * Synchronization and Resynchronization are timed by interrupt OnChange.
  * 
@@ -56,18 +56,6 @@ typedef struct   {
 } globalSync_t;
 
 extern globalSync_t globalSync;
-
-#if 0
-extern uint8_t segmentLenghts[3];
-extern uint8_t jumpWidth;
-extern int8_t relativeJumpWidth; 
-
-extern uint8_t nxtBit;                  /* Used to store next bit received from the bus */
-extern uint8_t lstBit;                  /* Used for stuffing check */
-extern uint8_t bitRepetitionCount;      /* Used to count the number of repetition of last bit */
-
-extern uint8_t processedLastBit;        /* Flag : used to indicate weather a state function needs to be called.*/
-#endif
 
 void interruptBitTiming();
 void interruptOnChange();

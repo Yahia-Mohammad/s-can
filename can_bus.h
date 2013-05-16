@@ -14,25 +14,28 @@
 #define RECESSIVE       1
 
 /* List of Bus States */
-#define NUM_STATES 14
+#define NUM_STATES 9
 
 #define BS_IDLE                 0
-#define BS_SOF                  1
-#define BS_ARBITRATION_CONTROL  2
-#define BS_CONTROL              3
-#define BS_DATA                 4
-#define BS_CRC                  5
-/* we need to re-number the states and create a function for CRC delimiter */
-#define BS_CRC_DELIMITER        5
 
-#define BS_ACK                  6
-#define BS_EOF                  7
-#define BS_INTERMISSION         8
-#define BS_SUSPEND              9
+#define BS_ARBITRATION_CONTROL  1
+
+#define BS_DATA                 2
+#define BS_CRC                  3
+/* we need to re-number the states and create a function for CRC delimiter */
+#define BS_CRC_DELIMITER        4
+
+#define BS_ACK                  5
+#define BS_EOF                  6
+#define BS_INTERMISSION         7
+#define BS_SUSPEND              8
+
+#if 0
 #define BS_OVERLOAD             10
 #define BS_OVERLOAD_DELIMITER   11
 #define BS_ERROR                12
 #define BS_ERROR_DELIMITER      13
+#endif
 
 #endif	/* CAN_BUS_H */
 

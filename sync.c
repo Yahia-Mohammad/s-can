@@ -15,22 +15,7 @@ globalSync_t globalSync = {
 .nxtBit = RECESSIVE        
 };
 
-
 static uint8_t bitState = 0; 
-#if 0
-/* In which bit time segment the bus is */
-uint8_t jumpWidth = MIN(4,PHS1_LN);      /* Synchronization Jump Width */
-int8_t relativeJumpWidth; // = jumpWidth - SYNC_PROP_LN;
-
-/*we might need to multiply by TIME_QUANTUM*/
-
-
-uint8_t segmentLengths[3] = {SYNC_PROP_LN, PHS1_LN, PHS2_LN};
-uint8_t processedLastBit = 1;
-uint8_t lstBit = RECESSIVE;
-uint8_t bitRepetitionCount = 0;
-uint8_t nxtBit = RECESSIVE;
-#endif
 
 /*Function: void interruptBitTiming
  This function gets called when the timer reaches the value in the capture (or match) register.*/
@@ -101,7 +86,6 @@ void interruptBitTiming()       {
                     SWITCH_ERROR_MODE(CM_RECEIVE);
                 }
                 globalController.matchCRC = 0;
-                globalController.delimiterCRC = 1;
                 return;
             }
 
@@ -227,8 +211,6 @@ void interruptOnChange()        {
                 /* redundant */
                 break;
             }
-            
-        
 
     }
 }

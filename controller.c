@@ -14,27 +14,15 @@ globalController_t globalController = {.dataLength = 0,
 .delimiterACK = 0, 
 .controllerMode = CM_RECEIVE};
 
-void (*stateFunction[NUM_STATES])() = {stateIdle, stateSOF,
-stateArbitration, stateControl, stateData, stateCRC,
+void (*stateFunction[NUM_STATES])() = {stateIdle,
+stateArbitrationControl, stateData, stateCRC,
 stateACK, stateEOF, stateIntermission, stateSuspend,
-stateOverload, stateOverloadDelimiter, stateError, stateErrorDelimiter};
+};
 
 
 uint8_t incomingBuffer[INCOMING_BUFFER_SIZE] = {0};
 uint32_t nodeFilters [FILTERS_NUM] = {0};
 
-#if 0
-uint8_t dataLength = 0;
-uint8_t RTR = 0;
-uint8_t matchedFilterIndex = MAX_FILTERS_NUM;
-uint8_t initializeState = 1; 
-uint8_t generateACK = 0;
-uint8_t matchCRC = 0;
-uint8_t delimiterCRC = 0;
-uint8_t delimiterACK = 0;
-
-uint8_t controllerMode = CM_RECEIVE;
-#endif
 
 /* IMPORTANT : Should be initialized to  stateFunction[BS_IDLE]*/
 void (*currentStateFunction)() = 0;
@@ -47,11 +35,8 @@ void stateIdle()        {
     }
 }
 
-void stateSOF() {
-    /* This function is redundant and should be removed */
-}
 
-void stateArbitration() {
+void stateArbitrationControl() {
     static uint8_t extended = 0;
     static uint8_t bitCounter = 0;
     static uint8_t identifierCounter = 11;
@@ -75,7 +60,7 @@ void stateArbitration() {
         globalSync.bitRepetitionCount = 1;
     }
     
-    uint8_t i; /* Used as an iterator, a precaution in case the compiler used only support ISO C */
+    uint8_t i; /* Used as an iterator, for ANSI C compatibility */
       
     /* we should check for other errors as well */
     
@@ -137,16 +122,10 @@ void stateArbitration() {
         
         globalController.initializeState = 1;
         
-        /* All the clean up goes here, all static and related global variables, then set the next state 
-         * WE DO NOT CLEAR stuffingRegister here 
-         * When setting the next state, we might set it to CRC state directly if it's 0 data length (like RTR) */
     }
     
 }
 
-void stateControl()     {
-    /* Redundant : should be removed */
-}
 
 void stateData()        {
     /* 
@@ -233,7 +212,8 @@ void stateACK() {
      * and there where the controller checks for CRC matching, and signal the Error frame if needed. */
     globalSync.processedLastBit = 1;
     globalController.matchCRC = 1;
-    /* change state to EOF ...*/
+    
+    currentStateFunction = stateFunction[BS_EOF]; /* Needs double checking */
 }
 
 void stateEOF() {
@@ -294,6 +274,12 @@ void stateIntermission()        {
 void stateSuspend()     {
     /* Only in transmission controller mode, and error state is passive */
 }
+void Initialize()   {
+    globalSync.relativeJumpWidth = globalSync.jumpWidth - SYNC_PROP_LN;
+}
+
+#if 0
+/* functionality moved to sync.c functions, so they aren't needed anymore. */
 
 void stateOverload()    {
     
@@ -310,7 +296,5 @@ void stateError()       {
 void stateErrorDelimiter()      {
     
 }
+#endif
 
-void Initialize()   {
-    globalSync.relativeJumpWidth = globalSync.jumpWidth - SYNC_PROP_LN;
-}
